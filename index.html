@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>Kalori Takip v2</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f4f6f8;color:#172033;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}.w{max-width:720px;margin:auto;padding:18px 16px 50px}
+h1{margin:4px 0;font-size:26px}.muted{color:#6b7280;font-size:13px}.card{background:white;border-radius:20px;padding:17px;margin:13px 0;box-shadow:0 5px 22px #0000000c}
+.hero{text-align:center}.big{font-size:40px;font-weight:800;margin:5px}.bar{height:11px;background:#e5e7eb;border-radius:20px;overflow:hidden;margin:14px 0}.bar span{display:block;height:100%;background:#111827}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.s{background:#f8fafc;border-radius:13px;padding:10px;text-align:center}.s b{display:block}.s small{color:#6b7280}
+h2{font-size:17px;margin:0 0 12px}.inputrow{display:flex;gap:8px}input,button{font:inherit;border-radius:13px;padding:13px;border:1px solid #dfe3e8}input{flex:1;min-width:0}button{background:#111827;color:white;border:0;font-weight:700}.suggest{margin-top:9px;padding:10px 12px;background:#f4f6f8;border-radius:12px;font-size:14px}
+.food{display:flex;justify-content:space-between;border-bottom:1px solid #eee;padding:11px 0}.food:last-child{border:0}.food small{color:#6b7280}.x{background:none;color:#b42318;padding:3px 8px}
+.note{font-size:12px;color:#6b7280;line-height:1.45}.ok{color:#137a49;font-weight:700}
+@media(max-width:480px){.stats{grid-template-columns:1fr 1fr}.big{font-size:35px}}
+</style></head>
+<body><div class="w">
+<h1>Kalori Takip <small style="font-size:12px">v2</small></h1><div class="muted" id="date"></div>
+
+<div class="card hero"><div class="muted">Bugün alınan</div><div class="big"><span id="total">0</span> kcal</div>
+<div class="bar"><span id="bar"></span></div>
+<div class="stats"><div class="s"><b id="target">1800</b><small>hedef</small></div><div class="s"><b id="left">1800</b><small>kalan</small></div><div class="s"><b id="burn">0</b><small>aktivite</small></div><div class="s"><b id="stepv">0</b><small>adım</small></div><div class="s"><b id="weightv">91.0</b><small>kg</small></div><div class="s"><b id="goalv">11.0</b><small>hedefe kalan</small></div></div></div>
+
+<div class="card"><h2>🍳 Ne yedin?</h2>
+<div class="inputrow"><input id="foodInput" placeholder="Örn: 3 yumurta" autocomplete="off"><button onclick="smartAdd()">Ekle</button></div>
+<div id="suggest" class="suggest" style="display:none"></div>
+<div id="foods"></div>
+<p class="note">Yiyecek adı ve miktarından yerleşik veri tabanıyla yaklaşık kalori hesaplar. “3 yumurta”, “1 muz”, “2 elma”, “200 g tavuk”, “1 kase yoğurt” gibi girişleri anlayabilir. Tarif, yağ miktarı ve porsiyon değiştikçe gerçek değer değişir.</p></div>
+
+<div class="card"><h2>📷 Yemek fotoğrafı</h2><input style="width:100%" type="file" accept="image/*" capture="environment" onchange="photoSelected(event)">
+<div id="photoMsg" class="note" style="margin-top:10px">Fotoğraf seçebilirsin. Bu çevrimdışı sürüm fotoğrafın kalorilerini kendi başına analiz edemez; AI fotoğraf analizi web sunuculu sürümde eklenecek.</div></div>
+
+<div class="card"><h2>👟 Aktivite</h2><div class="inputrow"><input id="steps" type="number" inputmode="numeric" placeholder="Adım sayısı"><button onclick="saveSteps()">Kaydet</button></div><p class="note">Adım kalorisi kiloya göre yaklaşık hesaplanır.</p></div>
+
+<div class="card"><h2>⚖️ Kilo</h2><div class="inputrow"><input id="weight" type="number" step=".1" inputmode="decimal" placeholder="91.0"><button onclick="saveWeight()">Kaydet</button></div></div>
+</div>
+<script>
+const DB=[
+["yumurta",70,"adet"],["haşlanmış yumurta",70,"adet"],["muz",105,"adet"],["elma",95,"adet"],["portakal",62,"adet"],["mandalina",47,"adet"],
+["hurma",23,"adet"],["ceviz",27,"adet"],["zeytin",6,"adet"],["galeta",28,"adet"],["ekmek",75,"dilim"],["tam buğday ekmeği",70,"dilim"],
+["yoğurt",120,"kase"],["ayran",80,"bardak"],["süt",125,"bardak"],["mercimek çorbası",150,"kase"],["çorba",150,"kase"],
+["pilav",260,"tabak"],["bulgur pilavı",220,"tabak"],["makarna",330,"tabak"],["salata",80,"kase"],["enginar",170,"adet"],
+["tavuk",1.65,"gram"],["tavuk göğsü",1.65,"gram"],["et",2.5,"gram"],["kıyma",2.5,"gram"],["balık",2.0,"gram"],
+["fındık",6.3,"gram"],["badem",5.8,"gram"],["peynir",3.0,"gram"],["pirinç",3.6,"gram"],["patates",0.77,"gram"]
+];
+let d;
+try{d=JSON.parse(localStorage.getItem("ktv2"))}catch(e){}
+d=d||{target:1800,weight:91,goal:80,steps:0,date:day(),foods:[]};
+function day(){return new Date().toISOString().slice(0,10)}
+function newDay(){if(d.date!==day()){d.date=day();d.steps=0;d.foods=[]}}
+function save(){try{localStorage.setItem("ktv2",JSON.stringify(d))}catch(e){} render()}
+function normalize(s){return s.toLocaleLowerCase("tr-TR").replace(/,/g,".").trim()}
+function parseFood(raw){
+ let s=normalize(raw), num=(s.match(/(\d+(?:\.\d+)?)/)||[])[1]; num=num?parseFloat(num):1;
+ let gram=/\b(g|gr|gram)\b/.test(s);
+ let matches=DB.filter(x=>s.includes(x[0])).sort((a,b)=>b[0].length-a[0].length);
+ if(!matches.length)return null;
+ let x=matches[0],cal;
+ if(gram){
+   if(x[2]==="gram")cal=num*x[1];
+   else return null;
+ }else{
+   if(x[2]==="gram"){
+      // sensible default serving when no grams supplied
+      let defaults={"tavuk":150,"tavuk göğsü":150,"et":120,"kıyma":120,"balık":150,"fındık":25,"badem":25,"peynir":30,"pirinç":70,"patates":150};
+      cal=(defaults[x[0]]||100)*x[1]*num;
+   }else cal=num*x[1];
+ }
+ return {name:raw.trim(),cal:Math.round(cal),basis:x[0]};
+}
+function smartAdd(){
+ let raw=foodInput.value.trim();if(!raw)return;
+ let r=parseFood(raw);
+ if(!r){suggest.style.display="block";suggest.innerHTML="Bunu yerleşik listemde bulamadım. Daha açık yazmayı dene: <b>200 g tavuk</b>, <b>1 kase yoğurt</b> gibi.";return}
+ d.foods.push(r);foodInput.value="";suggest.style.display="block";suggest.innerHTML=`<span class="ok">Eklendi:</span> ${r.name} ≈ <b>${r.cal} kcal</b>`;save()
+}
+function del(i){d.foods.splice(i,1);save()}
+function saveSteps(){d.steps=+steps.value||0;save()}
+function saveWeight(){let v=+weight.value;if(v>0){d.weight=v;weight.value="";save()}}
+function stepCal(){return Math.round(d.steps*d.weight*0.00045)}
+function photoSelected(e){let f=e.target.files[0];photoMsg.textContent=f?("Fotoğraf seçildi: "+f.name+". AI analizi için web sunuculu sürüm gerekir."):"Fotoğraf seçilmedi."}
+function render(){
+ newDay();let t=d.foods.reduce((a,x)=>a+x.cal,0);
+ date.textContent=new Intl.DateTimeFormat("tr-TR",{dateStyle:"full"}).format(new Date());
+ total.textContent=t;target.textContent=d.target;left.textContent=d.target-t;burn.textContent=stepCal();stepv.textContent=d.steps.toLocaleString("tr-TR");weightv.textContent=d.weight.toFixed(1);goalv.textContent=Math.max(0,d.weight-d.goal).toFixed(1);bar.style.width=Math.min(100,t/d.target*100)+"%";
+ foods.innerHTML=d.foods.map((x,i)=>`<div class="food"><div><b>${x.name}</b><br><small>≈ ${x.cal} kcal</small></div><button class="x" onclick="del(${i})">Sil</button></div>`).join("");
+ steps.value=d.steps||"";
+ try{localStorage.setItem("ktv2",JSON.stringify(d))}catch(e){}
+}
+foodInput.addEventListener("keydown",e=>{if(e.key==="Enter")smartAdd()});render();
+</script></body></html>
