@@ -51,7 +51,7 @@ capture="environment">
 <button onclick="analyzePhoto()">📸 Fotoğrafı AI ile Analiz Et</button>
 
 <div id="photoResult" class="result"></div>
-
+<button id="addPhotoBtn" onclick="addPhotoToDaily()" style="display:none">➕ Fotoğrafı Günlüğe Ekle</button>
 <p class="small">
 AI tahmini yaklaşık değerdir.
 </p>
@@ -187,12 +187,11 @@ async function analyzePhoto(){
  if(!Number.isFinite(kcal))
    throw new Error("Kalori bilgisi alınamadı.");
 
- totalCalories+=kcal;
-
- localStorage.setItem(
-   "totalCalories",
-   totalCalories
- );
+ 
+lastPhotoCalories = Math.round(kcal);
+lastPhotoName = data.food || "Yemek";
+document.getElementById("addPhotoBtn").style.display = "block";
+ 
 
  result.innerText=
  "🍽️ "+(data.food || "Yemek")+
@@ -251,6 +250,18 @@ function addFoodToDaily() {
 localStorage.setItem("totalCalories", totalCalories);
 
   alert(lastFoodName + " günlüğe eklendi: " + lastFoodCalories + " kcal");
+  location.reload();
+}
+ let lastPhotoCalories = 0;
+let lastPhotoName = "";
+
+function addPhotoToDaily() {
+  if (!lastPhotoCalories) return;
+
+  totalCalories += lastPhotoCalories;
+  localStorage.setItem("totalCalories", totalCalories);
+
+  alert(lastPhotoName + " günlüğe eklendi: " + lastPhotoCalories + " kcal");
   location.reload();
 }
 </script>
