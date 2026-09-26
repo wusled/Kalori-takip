@@ -5,6 +5,75 @@
 <title>Kalori Takip</title>
 <style>
 :root{--bg:#f4f7f6;--card:#fff;--text:#17211d;--muted:#6b7771;--accent:#E58C7C;--accent2:#B85F52;--danger:#d84a4a;--line:#e3e9e6;--shadow:0 10px 30px rgba(24,58,45,.08)}*{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--text)}.wrap{max-width:720px;margin:auto;padding:18px 14px 48px}.hero{background:linear-gradient(135deg,#11795b,#1aaa7d);color:#fff;border-radius:24px;padding:22px;box-shadow:var(--shadow)}.hero h1{margin:0 0 5px;font-size:26px}.hero p{margin:0;opacity:.88}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:18px}.stat{background:rgba(255,255,255,.15);padding:12px 8px;border-radius:15px;text-align:center}.stat b{display:block;font-size:20px}.stat span{font-size:12px}.progress{height:10px;background:rgba(255,255,255,.25);border-radius:20px;margin-top:15px;overflow:hidden}.progress i{display:block;height:100%;width:0;background:#fff;border-radius:20px}.card{background:var(--card);border-radius:20px;padding:17px;margin-top:14px;box-shadow:var(--shadow)}h2{font-size:18px;margin:0 0 13px}.row{display:flex;gap:9px}.row>*{flex:1}input,button{font:inherit}input{width:100%;padding:13px;border:1px solid var(--line);border-radius:13px;background:#fafcfb;outline:none}button{border:0;border-radius:13px;padding:13px 14px;font-weight:700;cursor:pointer;background:var(--accent);color:white}button:active{transform:scale(.99)}button.secondary{background:#edf7f3;color:var(--accent2)}button.danger{background:#fff0f0;color:var(--danger)}button.small{padding:8px 10px;font-size:13px}.result{display:none;margin-top:12px;padding:12px;background:#f0faf6;border:1px solid #d5eee4;border-radius:13px;line-height:1.4}.action{display:none;width:100%;margin-top:9px}.muted{color:var(--muted);font-size:13px}.history-item{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 0;border-bottom:1px solid var(--line)}.history-item:last-child{border-bottom:0}.history-item strong{display:block}.tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:14px}.tabs button{background:#fff;color:var(--muted);box-shadow:var(--shadow);padding:11px 5px}.tabs button.active{background:var(--accent);color:#fff}.panel{display:none}.panel.active{display:block}.photo-preview{display:none;width:100%;max-height:260px;object-fit:cover;border-radius:14px;margin-top:10px}.notice{font-size:12px;color:var(--muted);margin-top:8px}.setting{margin-bottom:12px}.setting label{font-size:13px;font-weight:700;display:block;margin-bottom:6px}.past-day{padding:12px 0;border-bottom:1px solid var(--line)}.past-day:last-child{border:0}.past-day summary{cursor:pointer;font-weight:700}.empty{text-align:center;color:var(--muted);padding:12px}@media(max-width:420px){.hero{padding:18px}.stats{gap:5px}.stat b{font-size:18px}.row.stack{display:block}.row.stack>*{margin-bottom:8px}}
+
+/* ===== YENİ MAVİ TEMA ===== */
+
+:root {
+  --blue: #2f91ed;
+  --blue-dark: #1976d2;
+  --blue-light: #d9efff;
+  --blue-bg: #eaf6ff;
+  --card: #ffffff;
+  --text: #172033;
+  --muted: #64748b;
+  --border: #cfe6f7;
+}
+
+body {
+  background: linear-gradient(180deg, #d9efff 0%, #eef8ff 100%);
+  color: var(--text);
+}
+
+.card {
+  background: rgba(255,255,255,.88);
+  border: 1px solid var(--border);
+  box-shadow: 0 8px 25px rgba(47,145,237,.10);
+}
+
+button {
+  background: linear-gradient(135deg, #2993f2, #48a8f7) !important;
+  color: #fff !important;
+  border: none !important;
+  box-shadow: 0 5px 14px rgba(47,145,237,.22);
+}
+
+button:active {
+  transform: scale(.98);
+}
+
+input,
+select {
+  background: #fff !important;
+  border: 1px solid #bddcf3 !important;
+  color: var(--text);
+}
+
+input:focus,
+select:focus {
+  outline: none;
+  border-color: var(--blue) !important;
+  box-shadow: 0 0 0 3px rgba(47,145,237,.15);
+}
+
+.progress,
+.progress-track {
+  background: #cfe9fb !important;
+}
+
+.progress-bar,
+.progress-fill {
+  background: linear-gradient(90deg, #258ff0, #52adf7) !important;
+}
+
+.result {
+  background: #edf8ff;
+  border-color: #c8e6fa;
+}
+
+.small {
+  color: var(--muted);
+}
+
 </style>
 </head>
 <body><main class="wrap">
