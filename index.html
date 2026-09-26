@@ -59,6 +59,8 @@ AI tahmini yaklaşık değerdir.
 <div class="card">
   <h2>📋 Bugün Yediklerim</h2>
   <div id="foodHistory">Henüz bir şey eklenmedi.</div>
+<button onclick="resetDailyFood()">🗑️ Günlük Toplamı Sıfırla</button>
+
 </div>
 <div class="card">
 <h2>🚶 Adım</h2>
@@ -308,6 +310,21 @@ function deleteFood(index) {
 }
 
 showFoodHistory();
+
+ function resetDailyFood() {
+  if (!confirm("Bugünkü yemekleri ve alınan kaloriyi sıfırlamak istiyor musun?")) return;
+
+  totalCalories = 0;
+  foodHistory = [];
+
+  localStorage.setItem("totalCalories", "0");
+  localStorage.setItem("foodHistory", "[]");
+
+  updateSummary();
+  showFoodHistory();
+
+  alert("Günlük kalori ve yemek listesi sıfırlandı.");
+}
 </script>
 </body>
 </html>
