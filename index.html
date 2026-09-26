@@ -56,7 +56,10 @@ capture="environment">
 AI tahmini yaklaşık değerdir.
 </p>
 </div>
-
+<div class="card">
+  <h2>📋 Bugün Yediklerim</h2>
+  <div id="foodHistory">Henüz bir şey eklenmedi.</div>
+</div>
 <div class="card">
 <h2>🚶 Adım</h2>
 
@@ -248,7 +251,7 @@ function addFoodToDaily() {
 
  totalCalories += lastFoodCalories;
 localStorage.setItem("totalCalories", totalCalories);
-
+saveFoodHistory(lastFoodName, lastFoodCalories);
   alert(lastFoodName + " günlüğe eklendi: " + lastFoodCalories + " kcal");
   location.reload();
 }
@@ -260,10 +263,51 @@ function addPhotoToDaily() {
 
   totalCalories += lastPhotoCalories;
   localStorage.setItem("totalCalories", totalCalories);
-
+saveFoodHistory(lastPhotoName, lastPhotoCalories);
   alert(lastPhotoName + " günlüğe eklendi: " + lastPhotoCalories + " kcal");
   location.reload();
 }
+ let foodHistory = JSON.parse(localStorage.getItem("foodHistory") || "[]");
+
+function saveFoodHistory(name, calories) {
+  foodHistory.push({
+    name: name,
+    calories: calories
+  });
+  localStorage.setItem("foodHistory", JSON.stringify(foodHistory));
+}
+
+function showFoodHistory() {
+  const box = document.getElementById("foodHistory");
+  if (!box) return;
+
+  if (foodHistory.length === 0) {
+    box.innerHTML = "Henüz bir şey eklenmedi.";
+    return;
+  }
+
+  box.innerHTML = foodHistory.map((item, index) =>
+    `<div style="margin:10px 0">
+      ${item.name} — ${item.calories} kcal
+      <button onclick="deleteFood(${index})">🗑️ Sil</button>
+    </div>`
+  ).join("");
+}
+
+function deleteFood(index) {
+  totalCalories -= Number(foodHistory[index].calories);
+  if (totalCalories < 0) totalCalories = 0;
+
+  foodHistory.splice(index, 1);
+
+  localStorage.setItem("foodHistory", JSON.stringify(foodHistory));
+  localStorage.setItem("totalCalories", totalCalories);
+
+  updateSummary();
+  showFoodHistory();
+}
+
+showFoodHistory();
 </script>
 </body>
 </html>
