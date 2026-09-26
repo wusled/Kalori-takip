@@ -1,330 +1,57 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="tr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Kalori AI</title>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Kalori Takip</title>
 <style>
-body{font-family:Arial;background:#f3f5f7;margin:0;padding:16px;color:#222}
-.app{max-width:600px;margin:auto}
-.card{background:white;padding:18px;margin-bottom:14px;border-radius:16px}
-h1{text-align:center}
-input,button{width:100%;padding:14px;margin-top:8px;border-radius:10px;box-sizing:border-box;font-size:16px}
-input{border:1px solid #ccc}
-button{border:0;background:#1677ff;color:white;font-weight:bold}
-.result{margin-top:12px;font-size:17px}
-.small{color:#666;font-size:13px}
+:root{--bg:#f4f7f6;--card:#fff;--text:#17211d;--muted:#6b7771;--accent:#15936d;--accent2:#0d7556;--danger:#d84a4a;--line:#e3e9e6;--shadow:0 10px 30px rgba(24,58,45,.08)}*{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--text)}.wrap{max-width:720px;margin:auto;padding:18px 14px 48px}.hero{background:linear-gradient(135deg,#11795b,#1aaa7d);color:#fff;border-radius:24px;padding:22px;box-shadow:var(--shadow)}.hero h1{margin:0 0 5px;font-size:26px}.hero p{margin:0;opacity:.88}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:18px}.stat{background:rgba(255,255,255,.15);padding:12px 8px;border-radius:15px;text-align:center}.stat b{display:block;font-size:20px}.stat span{font-size:12px}.progress{height:10px;background:rgba(255,255,255,.25);border-radius:20px;margin-top:15px;overflow:hidden}.progress i{display:block;height:100%;width:0;background:#fff;border-radius:20px}.card{background:var(--card);border-radius:20px;padding:17px;margin-top:14px;box-shadow:var(--shadow)}h2{font-size:18px;margin:0 0 13px}.row{display:flex;gap:9px}.row>*{flex:1}input,button{font:inherit}input{width:100%;padding:13px;border:1px solid var(--line);border-radius:13px;background:#fafcfb;outline:none}button{border:0;border-radius:13px;padding:13px 14px;font-weight:700;cursor:pointer;background:var(--accent);color:white}button:active{transform:scale(.99)}button.secondary{background:#edf7f3;color:var(--accent2)}button.danger{background:#fff0f0;color:var(--danger)}button.small{padding:8px 10px;font-size:13px}.result{display:none;margin-top:12px;padding:12px;background:#f0faf6;border:1px solid #d5eee4;border-radius:13px;line-height:1.4}.action{display:none;width:100%;margin-top:9px}.muted{color:var(--muted);font-size:13px}.history-item{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 0;border-bottom:1px solid var(--line)}.history-item:last-child{border-bottom:0}.history-item strong{display:block}.tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:14px}.tabs button{background:#fff;color:var(--muted);box-shadow:var(--shadow);padding:11px 5px}.tabs button.active{background:var(--accent);color:#fff}.panel{display:none}.panel.active{display:block}.photo-preview{display:none;width:100%;max-height:260px;object-fit:cover;border-radius:14px;margin-top:10px}.notice{font-size:12px;color:var(--muted);margin-top:8px}.setting{margin-bottom:12px}.setting label{font-size:13px;font-weight:700;display:block;margin-bottom:6px}.past-day{padding:12px 0;border-bottom:1px solid var(--line)}.past-day:last-child{border:0}.past-day summary{cursor:pointer;font-weight:700}.empty{text-align:center;color:var(--muted);padding:12px}@media(max-width:420px){.hero{padding:18px}.stats{gap:5px}.stat b{font-size:18px}.row.stack{display:block}.row.stack>*{margin-bottom:8px}}
 </style>
 </head>
-
-<body>
-<div class="app">
-
-<h1>🍎 Kalori AI</h1>
-
-<div class="card">
-<b>Bugünkü hedef</b>
-<h2>1800 kcal</h2>
-<div id="summary">Alınan: 0 kcal</div>
-</div>
-
-<div class="card">
-<h2>🍳 Ne yedin?</h2>
-
-<input id="food"
-placeholder="Örn: 3 yumurta veya 1 tabak makarna">
-
-<button onclick="analyzeFood()">🤖 AI ile Hesapla</button>
-
-<div id="foodResult" class="result"></div>
- <button id="addFoodBtn" onclick="addFoodToDaily()" style="display:none">➕ Günlüğe Ekle</button>
-</div>
-
-<div class="card">
-<h2>📷 Yemek fotoğrafı</h2>
-
-<input id="photo"
-type="file"
-accept="image/*"
-capture="environment">
-
-<button onclick="analyzePhoto()">📸 Fotoğrafı AI ile Analiz Et</button>
-
-<div id="photoResult" class="result"></div>
-<button id="addPhotoBtn" onclick="addPhotoToDaily()" style="display:none">➕ Fotoğrafı Günlüğe Ekle</button>
-<p class="small">
-AI tahmini yaklaşık değerdir.
-</p>
-</div>
-<div class="card">
-  <h2>📋 Bugün Yediklerim</h2>
-  <div id="foodHistory">Henüz bir şey eklenmedi.</div>
-<button onclick="resetDailyFood()">🗑️ Günlük Toplamı Sıfırla</button>
-
-</div>
-<div class="card">
-<h2>🚶 Adım</h2>
-
-<input id="steps"
-type="number"
-placeholder="Bugünkü adım sayısı">
-
-<button onclick="calcSteps()">Hesapla</button>
-
-<div id="stepResult" class="result"></div>
-</div>
-
-</div>
-
+<body><main class="wrap">
+<section class="hero"><h1>🥗 Kalori Takip</h1><p id="todayLabel"></p><div class="stats"><div class="stat"><b id="goalStat">1800</b><span>Hedef</span></div><div class="stat"><b id="eatenStat">0</b><span>Alınan</span></div><div class="stat"><b id="remainingStat">1800</b><span>Kalan</span></div></div><div class="progress"><i id="progressBar"></i></div></section>
+<nav class="tabs"><button class="active" onclick="showTab('today',this)">Bugün</button><button onclick="showTab('past',this)">Geçmiş</button><button onclick="showTab('settings',this)">Ayarlar</button></nav>
+<section id="today" class="panel active">
+<div class="card"><h2>✍️ Yemeği yaz</h2><div class="row stack"><input id="foodInput" placeholder="Örn: 3 yumurta"><button onclick="analyzeFood()">🤖 AI ile Hesapla</button></div><div id="foodResult" class="result"></div><button id="addFoodBtn" class="action" onclick="addAnalyzedFood()">➕ Günlüğe Ekle</button></div>
+<div class="card"><h2>📷 Fotoğraftan hesapla</h2><input id="photoInput" type="file" accept="image/*" onchange="previewPhoto()"><img id="photoPreview" class="photo-preview"><button style="width:100%;margin-top:10px" onclick="analyzePhoto()">📸 Fotoğrafı AI ile Analiz Et</button><div id="photoResult" class="result"></div><button id="addPhotoBtn" class="action" onclick="addAnalyzedPhoto()">➕ Fotoğrafı Günlüğe Ekle</button><div class="notice">AI kalori değerleri tahmindir; porsiyon ve hazırlama şekline göre değişebilir.</div></div>
+<div class="card"><h2>📋 Bugün Yediklerim</h2><div id="foodHistory"></div><button class="danger" style="width:100%;margin-top:12px" onclick="resetToday()">🗑️ Bugünü Sıfırla</button></div>
+<div class="card"><h2>🚶 Aktivite</h2><div class="row"><input id="stepsInput" type="number" min="0" placeholder="Adım sayısı"><button onclick="saveSteps()">Kaydet</button></div><p id="activityInfo" class="muted"></p></div>
+<div class="card"><h2>⚖️ Kilo</h2><div class="row"><input id="weightInput" type="number" step="0.1" min="1" placeholder="Örn: 91"><button onclick="saveWeight()">Kaydet</button></div><p id="weightInfo" class="muted"></p></div>
+</section>
+<section id="past" class="panel"><div class="card"><h2>📅 Geçmiş Günler</h2><div id="pastDays"></div></div></section>
+<section id="settings" class="panel"><div class="card"><h2>⚙️ Ayarlar</h2><div class="setting"><label>Günlük kalori hedefim (kcal)</label><input id="goalInput" type="number" min="500" max="10000" step="10"></div><div class="setting"><label>Adım başına yakılan kalori</label><input id="stepRateInput" type="number" min="0" max="1" step="0.001"></div><button style="width:100%" onclick="saveSettings()">💾 Ayarları Kaydet</button><p class="muted">Kalori hedefini istediğin zaman değiştirebilirsin. Yemek geçmişin silinmez.</p></div></section>
+</main>
 <script>
-
-const API =
-"https://calori-ai.wustafaakbas.workers.dev";
-
-let totalCalories =
-Number(localStorage.getItem("totalCalories") || 0);
-
-updateSummary();
-
-function updateSummary(){
- document.getElementById("summary").innerText =
- "Alınan: "+Math.round(totalCalories)+" kcal • Kalan: "+
- Math.max(0,1800-Math.round(totalCalories))+" kcal";
-}
-
-async function analyzeFood(){
-
- const food =
- document.getElementById("food").value.trim();
-
- const result =
- document.getElementById("foodResult");
-
- if(!food){
-   result.innerText="Önce ne yediğini yaz.";
-   return;
- }
-
- result.innerText="🤖 AI hesaplıyor...";
-
- try{
-
- const r=await fetch(API,{
-   method:"POST",
-   headers:{
-     "Content-Type":"application/json"
-   },
-   body:JSON.stringify({
-     type:"text",
-     text:food
-   })
- });
-
- const data=await r.json();
-
- if(!r.ok)
-   throw new Error(data.error || "API hatası");
-
- const kcal=Number(data.calories ?? data.kcal);
-
- if(!Number.isFinite(kcal))
-   throw new Error("Kalori bilgisi alınamadı.");
-
- 
-lastFoodCalories = Math.round(kcal);
-lastFoodName = food;
-document.getElementById("addFoodBtn").style.display = "block";
- 
-
- result.innerText=
-   "🔥 "+food+": yaklaşık "+Math.round(kcal)+" kcal";
-
- updateSummary();
-
- }catch(e){
-
- result.innerText=
-   "❌ Hata: "+e.message;
-
- }
-
-}
-
-async function analyzePhoto(){
-
- const file =
- document.getElementById("photo").files[0];
-
- const result =
- document.getElementById("photoResult");
-
- if(!file){
-   result.innerText="Önce fotoğraf seç.";
-   return;
- }
-
- result.innerText=
- "📸 Fotoğraf AI tarafından inceleniyor...";
-
- try{
-
- const base64 =
- await fileToBase64(file);
-
- const r=await fetch(API,{
-   method:"POST",
-   headers:{
-     "Content-Type":"application/json"
-   },
-   body:JSON.stringify({
-     type:"image",
-     image:base64
-   })
- });
-
- const data=await r.json();
-
- if(!r.ok)
-   throw new Error(data.error || "API hatası");
-
- const kcal=Number(data.calories ?? data.kcal);
-
- if(!Number.isFinite(kcal))
-   throw new Error("Kalori bilgisi alınamadı.");
-
- 
-lastPhotoCalories = Math.round(kcal);
-lastPhotoName = data.food || "Yemek";
-document.getElementById("addPhotoBtn").style.display = "block";
- 
-
- result.innerText=
- "🍽️ "+(data.food || "Yemek")+
- ": yaklaşık "+Math.round(kcal)+" kcal";
-
- updateSummary();
-
- }catch(e){
-
- result.innerText=
- "❌ Hata: "+e.message;
-
- }
-
-}
-
-function fileToBase64(file){
-
- return new Promise((resolve,reject)=>{
-
-   const reader=new FileReader();
-
-   reader.onload=()=>{
-     resolve(reader.result);
-   };
-
-   reader.onerror=reject;
-
-   reader.readAsDataURL(file);
-
- });
-
-}
-
-function calcSteps(){
-
- const steps=
- Number(document.getElementById("steps").value);
-
- if(!steps) return;
-
- const burned=
- steps*91*0.00045;
-
- document.getElementById("stepResult").innerText=
- "🔥 Yaklaşık "+Math.round(burned)+" kcal harcadın.";
-
-}
-let lastFoodCalories = 0;
-let lastFoodName = "";
-
-function addFoodToDaily() {
-  if (!lastFoodCalories) return;
-
- totalCalories += lastFoodCalories;
-localStorage.setItem("totalCalories", totalCalories);
-saveFoodHistory(lastFoodName, lastFoodCalories);
-  alert(lastFoodName + " günlüğe eklendi: " + lastFoodCalories + " kcal");
-  location.reload();
-}
- let lastPhotoCalories = 0;
-let lastPhotoName = "";
-
-function addPhotoToDaily() {
-  if (!lastPhotoCalories) return;
-
-  totalCalories += lastPhotoCalories;
-  localStorage.setItem("totalCalories", totalCalories);
-saveFoodHistory(lastPhotoName, lastPhotoCalories);
-  alert(lastPhotoName + " günlüğe eklendi: " + lastPhotoCalories + " kcal");
-  location.reload();
-}
- let foodHistory = JSON.parse(localStorage.getItem("foodHistory") || "[]");
-
-function saveFoodHistory(name, calories) {
-  foodHistory.push({
-    name: name,
-    calories: calories
-  });
-  localStorage.setItem("foodHistory", JSON.stringify(foodHistory));
-}
-
-function showFoodHistory() {
-  const box = document.getElementById("foodHistory");
-  if (!box) return;
-
-  if (foodHistory.length === 0) {
-    box.innerHTML = "Henüz bir şey eklenmedi.";
-    return;
-  }
-
-  box.innerHTML = foodHistory.map((item, index) =>
-    `<div style="margin:10px 0">
-      ${item.name} — ${item.calories} kcal
-      <button onclick="deleteFood(${index})">🗑️ Sil</button>
-    </div>`
-  ).join("");
-}
-
-function deleteFood(index) {
-  totalCalories -= Number(foodHistory[index].calories);
-  if (totalCalories < 0) totalCalories = 0;
-
-  foodHistory.splice(index, 1);
-
-  localStorage.setItem("foodHistory", JSON.stringify(foodHistory));
-  localStorage.setItem("totalCalories", totalCalories);
-
-  updateSummary();
-  showFoodHistory();
-}
-
-showFoodHistory();
-
- function resetDailyFood() {
-  if (!confirm("Bugünkü yemekleri ve alınan kaloriyi sıfırlamak istiyor musun?")) return;
-
-  totalCalories = 0;
-  foodHistory = [];
-
-  localStorage.setItem("totalCalories", "0");
-  localStorage.setItem("foodHistory", "[]");
-
-  updateSummary();
-  showFoodHistory();
-
-  alert("Günlük kalori ve yemek listesi sıfırlandı.");
-}
-</script>
-</body>
-</html>
+const WORKER_URL='https://calori-ai.wustafaakbas.workers.dev';
+const KEY='kaloriTakipModernV1';
+let state=loadState(), pendingFood=null, pendingPhoto=null;
+function dateKey(d=new Date()){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+function defaultState(){return{goal:1800,stepRate:.04,days:{},weights:[]}}
+function loadState(){try{const s=JSON.parse(localStorage.getItem(KEY));return s&&s.days?s:defaultState()}catch{return defaultState()}}
+function saveState(){localStorage.setItem(KEY,JSON.stringify(state))}
+function ensureDay(k=dateKey()){if(!state.days[k])state.days[k]={foods:[],steps:0};return state.days[k]}
+function eaten(day=ensureDay()){return day.foods.reduce((s,x)=>s+Number(x.calories||0),0)}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function showTab(id,btn){document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.tabs button').forEach(x=>x.classList.remove('active'));document.getElementById(id).classList.add('active');btn.classList.add('active');if(id==='past')renderPast()}
+function render(){const d=ensureDay(), total=eaten(d), remaining=state.goal-total;document.getElementById('goalStat').textContent=state.goal;document.getElementById('eatenStat').textContent=Math.round(total);document.getElementById('remainingStat').textContent=Math.round(remaining);document.getElementById('progressBar').style.width=Math.min(100,Math.max(0,total/state.goal*100))+'%';document.getElementById('todayLabel').textContent=new Date().toLocaleDateString('tr-TR',{weekday:'long',day:'numeric',month:'long'});document.getElementById('goalInput').value=state.goal;document.getElementById('stepRateInput').value=state.stepRate;document.getElementById('stepsInput').value=d.steps||'';const burned=Math.round((d.steps||0)*state.stepRate);document.getElementById('activityInfo').textContent=d.steps?`${d.steps.toLocaleString('tr-TR')} adım ≈ ${burned} kcal aktivite`:'Bugünkü adım sayını girebilirsin.';const w=state.weights.at(-1);document.getElementById('weightInfo').textContent=w?`Son kayıt: ${w.value} kg (${w.date})`:'Henüz kilo kaydı yok.';renderFoods();saveState()}
+function renderFoods(){const box=document.getElementById('foodHistory'),foods=ensureDay().foods;if(!foods.length){box.innerHTML='<div class="empty">Bugün henüz yemek eklenmedi.</div>';return}box.innerHTML=foods.map((x,i)=>`<div class="history-item"><div><strong>${esc(x.name)}</strong><span class="muted">${Math.round(x.calories)} kcal</span></div><button class="danger small" onclick="deleteFood(${i})">🗑️ Sil</button></div>`).join('')}
+function deleteFood(i){ensureDay().foods.splice(i,1);render()}
+function addFood(name,calories){ensureDay().foods.push({name,calories:Math.round(calories),time:new Date().toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'})});render()}
+function parseAI(data){let name=(data.food||data.name||'Yemek').toString();let calories=Number(data.calories||data.kcal);if(!calories&&typeof data.result==='string'){const m=data.result.match(/([\d.,]+)\s*kcal/i);if(m)calories=Number(m[1].replace(',','.'));name=data.result.split(':')[0].replace(/[🔥🥗🍽️]/g,'').trim()||name}if(!calories&&typeof data.text==='string'){const m=data.text.match(/([\d.,]+)\s*kcal/i);if(m)calories=Number(m[1].replace(',','.'));name=data.text.split(':')[0].replace(/[🔥🥗🍽️]/g,'').trim()||name}return{name,calories}}
+async function callAI(payload){const r=await fetch(WORKER_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});const data=await r.json().catch(()=>({}));if(!r.ok)throw new Error(data.error||data.details||'AI isteği başarısız.');return data}
+async function analyzeFood(){const text=document.getElementById('foodInput').value.trim(),box=document.getElementById('foodResult'),btn=document.getElementById('addFoodBtn');if(!text)return alert('Önce ne yediğini yaz.');box.style.display='block';box.textContent='⏳ AI hesaplıyor...';btn.style.display='none';try{const data=await callAI({text});const p=parseAI(data);if(!p.calories)throw new Error('Kalori değeri bulunamadı.');pendingFood={name:p.name==='Yemek'?text:p.name,calories:p.calories};box.textContent=`🔥 ${pendingFood.name}: yaklaşık ${Math.round(p.calories)} kcal`;btn.style.display='block'}catch(e){box.textContent='❌ '+e.message}}
+function addAnalyzedFood(){if(!pendingFood)return;addFood(pendingFood.name,pendingFood.calories);pendingFood=null;document.getElementById('addFoodBtn').style.display='none';document.getElementById('foodInput').value='';alert('Günlüğe eklendi.');}
+function previewPhoto(){const f=document.getElementById('photoInput').files[0],img=document.getElementById('photoPreview');if(!f){img.style.display='none';return}img.src=URL.createObjectURL(f);img.style.display='block'}
+function fileToDataURL(f){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(f)})}
+async function analyzePhoto(){const f=document.getElementById('photoInput').files[0],box=document.getElementById('photoResult'),btn=document.getElementById('addPhotoBtn');if(!f)return alert('Önce bir yemek fotoğrafı seç.');box.style.display='block';box.textContent='⏳ Fotoğraf analiz ediliyor...';btn.style.display='none';try{const image=await fileToDataURL(f),data=await callAI({image});const p=parseAI(data);if(!p.calories)throw new Error('Kalori değeri bulunamadı.');pendingPhoto=p;box.textContent=`📸 ${p.name}: yaklaşık ${Math.round(p.calories)} kcal`;btn.style.display='block'}catch(e){box.textContent='❌ '+e.message}}
+function addAnalyzedPhoto(){if(!pendingPhoto)return;addFood(pendingPhoto.name,pendingPhoto.calories);pendingPhoto=null;document.getElementById('addPhotoBtn').style.display='none';alert('Fotoğraftaki yemek günlüğe eklendi.');}
+function resetToday(){if(!confirm('Bugünkü yemekleri ve alınan kaloriyi sıfırlamak istiyor musun?'))return;state.days[dateKey()]={foods:[],steps:ensureDay().steps||0};render()}
+function saveSteps(){ensureDay().steps=Math.max(0,Number(document.getElementById('stepsInput').value)||0);render()}
+function saveWeight(){const v=Number(document.getElementById('weightInput').value);if(!v)return alert('Kilonu gir.');state.weights.push({date:dateKey(),value:v});document.getElementById('weightInput').value='';render();alert('Kilo kaydedildi.')}
+function saveSettings(){const g=Number(document.getElementById('goalInput').value),r=Number(document.getElementById('stepRateInput').value);if(g<500)return alert('Geçerli bir kalori hedefi gir.');state.goal=Math.round(g);if(r>=0)state.stepRate=r;render();alert('Ayarlar kaydedildi.')}
+function renderPast(){const box=document.getElementById('pastDays'),keys=Object.keys(state.days).filter(k=>k!==dateKey()).sort().reverse();if(!keys.length){box.innerHTML='<div class="empty">Henüz geçmiş gün kaydı yok.</div>';return}box.innerHTML=keys.map(k=>{const d=state.days[k],sum=eaten(d),foods=d.foods||[];return `<details class="past-day"><summary>${k} — ${Math.round(sum)} kcal</summary>${foods.length?foods.map(x=>`<div class="history-item"><span>${esc(x.name)}</span><span>${Math.round(x.calories)} kcal</span></div>`).join(''):'<p class="muted">Yemek kaydı yok.</p>'}<p class="muted">Adım: ${(d.steps||0).toLocaleString('tr-TR')}</p></details>`}).join('')}
+// Eski sürümdeki toplam hedefi varsa ilk kullanımda taşı.
+if(!localStorage.getItem(KEY)){const oldGoal=Number(localStorage.getItem('dailyGoal'));if(oldGoal>0)state.goal=oldGoal;saveState()}
+render();
+// Sayfa gece açık kalırsa gün değişimini otomatik algıla.
+let activeDate=dateKey();setInterval(()=>{if(dateKey()!==activeDate){activeDate=dateKey();render()}},60000);
+</script></body></html>
