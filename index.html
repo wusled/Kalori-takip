@@ -37,6 +37,7 @@ placeholder="Örn: 3 yumurta veya 1 tabak makarna">
 <button onclick="analyzeFood()">🤖 AI ile Hesapla</button>
 
 <div id="foodResult" class="result"></div>
+ <button id="addFoodBtn" onclick="addFoodToDaily()" style="display:none">➕ Günlüğe Ekle</button>
 </div>
 
 <div class="card">
@@ -124,12 +125,11 @@ async function analyzeFood(){
  if(!Number.isFinite(kcal))
    throw new Error("Kalori bilgisi alınamadı.");
 
- totalCalories+=kcal;
-
- localStorage.setItem(
-   "totalCalories",
-   totalCalories
- );
+ 
+lastFoodCalories = Math.round(kcal);
+lastFoodName = food;
+document.getElementById("addFoodBtn").style.display = "block";
+ 
 
  result.innerText=
    "🔥 "+food+": yaklaşık "+Math.round(kcal)+" kcal";
@@ -241,7 +241,18 @@ function calcSteps(){
  "🔥 Yaklaşık "+Math.round(burned)+" kcal harcadın.";
 
 }
+let lastFoodCalories = 0;
+let lastFoodName = "";
 
+function addFoodToDaily() {
+  if (!lastFoodCalories) return;
+
+ totalCalories += lastFoodCalories;
+localStorage.setItem("totalCalories", totalCalories);
+
+  alert(lastFoodName + " günlüğe eklendi: " + lastFoodCalories + " kcal");
+  location.reload();
+}
 </script>
 </body>
 </html>
